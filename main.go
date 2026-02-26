@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"sync/atomic"
@@ -48,12 +49,22 @@ func main() {
 				Message: "Something Gone Wrong",
 			})
 		} else {
+			for x, v := range ListUser {
+				if ListUser[x].Email == v.Email {
+					ctx.JSON(400, Response{
+						Success: true,
+						Message: "Duplicated Email Not palid",
+						Results: ListUser,
+					})
+					return
+				}
+			}
 			ListUser = append(ListUser, Users{
 				Id:       idCounter(),
 				Email:    data.Email,
 				Password: data.Password,
 			})
-			ctx.Data(200, "text/plain", []byte("hello"))
+
 			ctx.JSON(200, Response{
 				Success: true,
 				Message: "Back End is Running Well test",
@@ -65,7 +76,13 @@ func main() {
 	r.GET("/users/:id", func(ctx *gin.Context) {
 		id := ctx.Param("id")
 		i, err := strconv.Atoi(id)
-		i--
+		if i != 1 {
+			i--
+		}
+		if i == 1 {
+			i = 0 + 1
+		}
+
 		if err != nil {
 			ctx.JSON(400, Response{
 				Success: true,
@@ -73,9 +90,11 @@ func main() {
 				Results: 0,
 			})
 		}
+		fmt.Println(i)
 
 		for _, user := range ListUser {
-			if int(user.Id) == 1 {
+			fmt.Println(user.Id)
+			if int(user.Id) == i {
 				ctx.JSON(200, Response{
 					Success: true,
 					Message: "berhasil",
