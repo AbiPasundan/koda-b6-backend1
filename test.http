@@ -8,7 +8,8 @@ Host: localhost:8888
 Content-Type: application/json
 
 {
-    "email": "admin@mail.com",
+    "email": "adminmail.com",
+    "name": "bukan admin",
     "password": "admin#123"
 }
 
