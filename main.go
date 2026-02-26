@@ -7,6 +7,8 @@ import (
 	"sync/atomic"
 
 	"github.com/gin-gonic/gin"
+	"github.com/matthewhartstonge/argon2"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Response struct {
@@ -26,6 +28,15 @@ var counter int64
 
 func idCounter() int64 {
 	return atomic.AddInt64(&counter, 1)
+}
+
+func hashPassword(password string) string {
+	bytes, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	return string(bytes)
+}
+
+func checkPassword(hash string, password string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 }
 
 func main() {
@@ -59,10 +70,28 @@ func main() {
 					return
 				}
 			}
+
+			// h := sha256.New()
+			// h.Write([]byte(data.Password))
+
+			// bs := h.Sum(nil)
+
+			// pw := hashPassword(data.Password)
+			argon := argon2.DefaultConfig()
+			encoded, err := argon.HashEncoded([]byte("p@ssw0rd"))
+			if err != nil {
+				panic(err)
+			}
+
+			// ok, err := argon2.VerifyEncoded([]byte("p@ssw0rd"), encoded)
+			// if err != nil {
+			// 	panic(err)
+			// }
+
 			ListUser = append(ListUser, Users{
 				Id:       idCounter(),
 				Email:    data.Email,
-				Password: data.Password,
+				Password: string(encoded),
 			})
 
 			ctx.JSON(200, Response{
@@ -76,9 +105,6 @@ func main() {
 	r.GET("/users/:id", func(ctx *gin.Context) {
 		id := ctx.Param("id")
 		i, err := strconv.Atoi(id)
-		// if i != 1 {
-		// 	i--
-		// }
 		if i == 1 {
 			i = 1
 		}
