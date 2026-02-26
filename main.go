@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"sync/atomic"
 
 	"github.com/gin-gonic/gin"
 	"github.com/matthewhartstonge/argon2"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type Response struct {
@@ -28,15 +28,6 @@ var counter int64
 
 func idCounter() int64 {
 	return atomic.AddInt64(&counter, 1)
-}
-
-func hashPassword(password string) string {
-	bytes, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	return string(bytes)
-}
-
-func checkPassword(hash string, password string) error {
-	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 }
 
 func main() {
@@ -60,33 +51,56 @@ func main() {
 				Message: "Something Gone Wrong",
 			})
 		} else {
+			// test := strings.ContainsAny(data.Email, ",@")
+			// fmt.Println(test)
 			for x := range ListUser {
-				if data.Email == ListUser[x].Email {
+				wordToCheck := "@"
+
+				if !strings.Contains(data.Email, wordToCheck) {
 					ctx.JSON(400, Response{
-						Success: true,
-						Message: "Duplicated Email Not palid",
+						Success: false,
+						Message: "That is not an email",
 						Results: ListUser,
 					})
 					return
+				} else {
+					if data.Email == ListUser[x].Email {
+						ctx.JSON(400, Response{
+							Success: false,
+							Message: "Duplicated Email Not palid",
+							Results: ListUser,
+						})
+						return
+					}
+					// if strings.ContainsAny(data.Email, "@") {
+					// 	ctx.JSON(400, Response{
+					// 		Success: false,
+					// 		Message: "That is not email",
+					// 		Results: ListUser,
+					// 	})
+					// 	return
+					// }
+
+					//  else {
+					// 	fmt.Printf("The string does not contain the substring '%s'\n", wordToCheck)
+					// }
+
+					if len(data.Password) <= 8 {
+						ctx.JSON(400, Response{
+							Success: true,
+							Message: "Password terlalu lemah",
+							Results: ListUser,
+						})
+						return
+					}
 				}
 			}
 
-			// h := sha256.New()
-			// h.Write([]byte(data.Password))
-
-			// bs := h.Sum(nil)
-
-			// pw := hashPassword(data.Password)
 			argon := argon2.DefaultConfig()
-			encoded, err := argon.HashEncoded([]byte("p@ssw0rd"))
+			encoded, err := argon.HashEncoded([]byte(data.Password))
 			if err != nil {
 				panic(err)
 			}
-
-			// ok, err := argon2.VerifyEncoded([]byte("p@ssw0rd"), encoded)
-			// if err != nil {
-			// 	panic(err)
-			// }
 
 			ListUser = append(ListUser, Users{
 				Id:       idCounter(),
