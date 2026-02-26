@@ -3,6 +3,7 @@ package pkg
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -11,8 +12,76 @@ import (
 
 var data = Users{}
 
-func Auth() {
+var IsAuthenticated bool
+
+func CookieTool() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Get cookie
+		if cookie, err := c.Cookie("label"); err == nil {
+			if cookie == "ok" {
+				c.Next()
+				return
+			}
+		}
+
+		// Cookie verification failed
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden with no cookie"})
+		c.Abort()
+	}
+}
+
+func OriginAuth() {
 	r := gin.Default()
+	// , CookieTool(), func(c *gin.Context)
+	// r.GET("/",  func(ctx *gin.Context) {
+	// 	ctx.JSON(http.StatusOK, Response{
+	// 		Success: true,
+	// 		Message: "Data User",
+	// 		Results: ListUser,
+	// 	})
+	// })
+	r.GET("/", CookieTool(), func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, Response{
+			Success: true,
+			Message: "Data User",
+			Results: ListUser,
+		})
+	})
+
+	r.GET("/users/:id", CookieTool(), func(ctx *gin.Context) {
+		id := ctx.Param("id")
+		i, err := strconv.Atoi(id)
+		if i == 1 {
+			i = 1
+		}
+
+		if err != nil {
+			ctx.JSON(400, Response{
+				Success: true,
+				Message: "Bad Request",
+				Results: 0,
+			})
+		}
+		fmt.Println(i)
+
+		for _, user := range ListUser {
+			fmt.Println(user.Id)
+			if int(user.Id) == i {
+				ctx.JSON(200, Response{
+					Success: true,
+					Message: "berhasil",
+					Results: ListUser[i-1],
+				})
+				return
+			}
+		}
+		ctx.JSON(404, Response{
+			Success: true,
+			Message: "eubofceobu",
+			Results: nil,
+		})
+
+	})
 
 	r.GET("/register", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, Response{
@@ -88,17 +157,7 @@ func Auth() {
 	})
 
 	r.POST("/login", func(ctx *gin.Context) {
-		// ctx.JSON(http.StatusOK, Response{
-		// 	Success: true,
-		// 	Message: "Something Gone Wrong",
-		// })
 		for _, user := range ListUser {
-
-			// argon := argon2.DefaultConfig()
-
-			// encoded, err := argon.HashEncoded([]byte(data.Password))
-
-			// ok, err := argon2.VerifyEncoded([]byte(user.Password), encoded)
 			ok, err := argon2.VerifyEncoded(
 				[]byte(data.Password),
 				[]byte(user.Password),
@@ -108,16 +167,20 @@ func Auth() {
 				panic(err)
 			}
 
-			fmt.Println(ok)
-
 			if data.Email == user.Email && ok {
-				ctx.JSON(http.StatusOK, Response{
-					Success: true,
-					Message: "Ok email dan password sama",
-				})
+				IsAuthenticated = true
+				// Loggined()
+				// fmt.Println(IsAuthenticated)
+				// // ctx.Redirect(http.StatusFound, "/")
+				// ctx.JSON(http.StatusOK, Response{
+				// 	Success: true,
+				// 	Message: "Ok email dan password sama",
+				// })
+				ctx.SetCookie("label", "ok", 30, "/", "localhost", false, true)
+				ctx.String(200, "Login success!")
 			} else {
 				ctx.JSON(400, Response{
-					Success: true,
+					Success: false,
 					Message: "Email or Password Wrong",
 					Results: nil,
 				})
