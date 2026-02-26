@@ -49,8 +49,8 @@ func main() {
 				Message: "Something Gone Wrong",
 			})
 		} else {
-			for x, v := range ListUser {
-				if ListUser[x].Email == v.Email {
+			for x := range ListUser {
+				if data.Email == ListUser[x].Email {
 					ctx.JSON(400, Response{
 						Success: true,
 						Message: "Duplicated Email Not palid",
@@ -76,11 +76,11 @@ func main() {
 	r.GET("/users/:id", func(ctx *gin.Context) {
 		id := ctx.Param("id")
 		i, err := strconv.Atoi(id)
-		if i != 1 {
-			i--
-		}
+		// if i != 1 {
+		// 	i--
+		// }
 		if i == 1 {
-			i = 0 + 1
+			i = 1
 		}
 
 		if err != nil {
@@ -98,7 +98,7 @@ func main() {
 				ctx.JSON(200, Response{
 					Success: true,
 					Message: "berhasil",
-					Results: ListUser[i],
+					Results: ListUser[i-1],
 				})
 				return
 			}
