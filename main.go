@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"sync/atomic"
@@ -65,22 +64,8 @@ func main() {
 
 	r.GET("/users/:id", func(ctx *gin.Context) {
 		id := ctx.Param("id")
-
-		// if id == ListUser {
-		// 	ctx.JSON(200, Response{
-		// 		Success: true,
-		// 		Message: fmt.Sprintf("your id is %s", id),
-		// 	})
-		// } else {
-		// 	ctx.JSON(200, Response{
-		// 		Success: true,
-		// 		Message: fmt.Sprintf("Saha sia %s", id),
-		// 	})
-		// }
-
-		// var s string = "9223372036854775807"
-		// i, err := strconv.ParseInt(id, 10, 64)
 		i, err := strconv.Atoi(id)
+		i--
 		if err != nil {
 			ctx.JSON(400, Response{
 				Success: true,
@@ -89,10 +74,8 @@ func main() {
 			})
 		}
 
-		// i, _ := strconv.Atoi(id)
-
 		for _, user := range ListUser {
-			if int(user.Id) == i {
+			if int(user.Id) == 1 {
 				ctx.JSON(200, Response{
 					Success: true,
 					Message: "berhasil",
@@ -106,45 +89,6 @@ func main() {
 			Message: "eubofceobu",
 			Results: nil,
 		})
-
-		for x := range ListUser {
-			fmt.Println(ListUser[x])
-			// if i != ListUser[x].Id {
-			// 	ctx.JSON(404, Response{
-			// 		Success: true,
-			// 		Message: "eubofceobu",
-			// 		Results: ListUser[i],
-			// 	})
-			// 	return
-			// } else {
-			// 	ctx.JSON(200, Response{
-			// 		Success: true,
-			// 		Message: "data user",
-			// 		Results: ListUser[i],
-			// 	})
-			// }
-			// switch ListUser[x].Id {
-			// case i:
-			// 	ctx.JSON(200, Response{
-			// 		Success: true,
-			// 		Message: "data user",
-			// 		Results: ListUser[i],
-			// 	})
-			// default:
-			// 	ctx.JSON(404, Response{
-			// 		Success: true,
-			// 		Message: "data user tidak ditemukan",
-			// 		Results: 0,
-			// 	})
-			// }
-			// else {
-			// 	ctx.JSON(404, Response{
-			// 		Success: false,
-			// 		Message: "data user tidak ditemukan",
-			// 		// Results: ListUser[i],
-			// 	})
-			// }
-		}
 
 	})
 
