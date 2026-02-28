@@ -14,12 +14,12 @@ func main() {
 	{
 		authorized.GET("/", handler.Home)
 		authorized.GET("/users/:id", handler.UserSearch)
-		r.DELETE("/users/:id", handler.Delete)
-		r.PUT("/users/:id", handler.Edit)
+		authorized.DELETE("/users/:id", handler.Delete)
+		authorized.PUT("/users/:id", handler.Edit)
 	}
 	r.GET("/register", handler.Register)
-	r.POST("/register", handler.RegisterPost)
 	r.GET("/login", handler.Login)
+	r.POST("/register", handler.RegisterPost)
 	r.POST("/login", handler.LoginPost)
-	r.Run("localhost:8888")
+	r.Run(":8888")
 }

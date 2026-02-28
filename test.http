@@ -1,19 +1,39 @@
-GET / HTTP/1.1
-Host: localhost:8888
+GET http://localhost:8888/
 
 ###
+GET http://localhost:8888/login
 
-POST / HTTP/1.1
-Host: localhost:8888
+###
+POST http://localhost:8888/register
 Content-Type: application/json
 
 {
-    "email": "adminmail.com",
-    "name": "bukan admin",
-    "password": "admin#123"
+  "email": "admin@mail.com",
+  "password": "qwertyui"
 }
 
 ###
 
-GET /users/1 HTTP/1.1
-Host: localhost:8888
+POST http://localhost:8888/login
+Content-Type: application/json
+
+{
+  "email": "admin@mail.com",
+  "password": "test"
+}
+
+###
+GET http://localhost:8888/users/1
+
+###
+PUT http://localhost:8888/users/1
+Content-Type: application/json
+
+{
+  "email": "euy@mail.com",
+  "password": "admin#123"
+}
+
+###
+
+DELETE http://localhost:8888/users/1

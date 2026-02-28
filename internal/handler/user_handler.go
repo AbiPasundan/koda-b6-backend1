@@ -12,7 +12,6 @@ import (
 	"github.com/matthewhartstonge/argon2"
 )
 
-var data = models.Users{}
 var ListUser []models.Users
 var Counter int64
 
@@ -68,6 +67,7 @@ func Register(ctx *gin.Context) {
 }
 
 func RegisterPost(ctx *gin.Context) {
+	var data = models.Users{}
 	var err = ctx.ShouldBindJSON(&data)
 	if err != nil {
 		ctx.JSON(http.StatusOK, models.Response{
@@ -133,6 +133,7 @@ func Login(ctx *gin.Context) {
 	})
 }
 func LoginPost(ctx *gin.Context) {
+	var data = models.Users{}
 	for _, user := range ListUser {
 		ok, err := argon2.VerifyEncoded(
 			[]byte(data.Password),
@@ -181,6 +182,8 @@ func Delete(ctx *gin.Context) {
 				Message: "User berhasil dihapus",
 				Results: ListUser,
 			})
+			ctx.SetCookie("gin_cookie", "", -1, "/", "localhost", false, true)
+			ctx.String(http.StatusOK, "Cookie removed")
 			return
 		}
 	}
