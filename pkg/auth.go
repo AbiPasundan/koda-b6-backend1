@@ -26,13 +26,11 @@ func CookieTool() gin.HandlerFunc {
 }
 
 func Home(ctx *gin.Context) {
-	// r.GET("/", CookieTool(), func(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, Response{
 		Success: true,
 		Message: "Data User",
 		Results: ListUser,
 	})
-	// })
 }
 
 func UserSearch(ctx *gin.Context) {
@@ -75,7 +73,6 @@ func Register(ctx *gin.Context) {
 }
 
 func RegisterPost(ctx *gin.Context) {
-	// r.POST("/register", func(ctx *gin.Context) {
 	var err = ctx.ShouldBindJSON(&data)
 	if err != nil {
 		ctx.JSON(http.StatusOK, Response{
@@ -128,7 +125,7 @@ func RegisterPost(ctx *gin.Context) {
 
 		ctx.JSON(200, Response{
 			Success: true,
-			Message: "Back End is Running Well test",
+			Message: "Berhasil register",
 			Results: ListUser,
 		})
 	}
@@ -162,6 +159,40 @@ func LoginPost(ctx *gin.Context) {
 	ctx.JSON(400, Response{
 		Success: false,
 		Message: "Email or Password Wrong",
+		Results: nil,
+	})
+}
+
+func Delete(ctx *gin.Context) {
+	id := ctx.Param("id")
+
+	i, err := strconv.Atoi(id)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, Response{
+			Success: false,
+			Message: "Invalid ID",
+			Results: nil,
+		})
+		return
+	}
+
+	for index, user := range ListUser {
+		if int(user.Id) == i {
+
+			ListUser = append(ListUser[:index], ListUser[index+1:]...)
+
+			ctx.JSON(http.StatusOK, Response{
+				Success: true,
+				Message: "User berhasil dihapus",
+				Results: ListUser,
+			})
+			return
+		}
+	}
+
+	ctx.JSON(http.StatusNotFound, Response{
+		Success: false,
+		Message: "User tidak ditemukan",
 		Results: nil,
 	})
 }
