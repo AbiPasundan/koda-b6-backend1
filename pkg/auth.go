@@ -10,6 +10,12 @@ import (
 	"github.com/matthewhartstonge/argon2"
 )
 
+type UpdateUser struct {
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
 var data = Users{}
 
 func CookieTool() gin.HandlerFunc {
@@ -185,6 +191,83 @@ func Delete(ctx *gin.Context) {
 				Success: true,
 				Message: "User berhasil dihapus",
 				Results: ListUser,
+			})
+			return
+		}
+	}
+
+	ctx.JSON(http.StatusNotFound, Response{
+		Success: false,
+		Message: "User tidak ditemukan",
+		Results: nil,
+	})
+}
+
+func Edit(ctx *gin.Context) {
+	id := ctx.Param("id")
+
+	i, err := strconv.Atoi(id)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, Response{
+			Success: false,
+			Message: "Invalid ID",
+			Results: nil,
+		})
+		return
+	}
+
+	var input UpdateUser
+	if err := ctx.ShouldBindJSON(&input); err != nil {
+		ctx.JSON(http.StatusBadRequest, Response{
+			Success: false,
+			Message: "Invalid JSON",
+			Results: nil,
+		})
+		return
+	}
+
+	for index, user := range ListUser {
+		if int(user.Id) == i {
+
+			if input.Name != "" {
+				ListUser[index].Name = input.Name
+			}
+
+			if input.Email != "" {
+				if !strings.Contains(input.Email, "@") {
+					ctx.JSON(http.StatusBadRequest, Response{
+						Success: false,
+						Message: "Email tidak valid",
+						Results: nil,
+					})
+					return
+				}
+				ListUser[index].Email = input.Email
+			}
+
+			if input.Password != "" {
+				if len(input.Password) <= 8 {
+					ctx.JSON(http.StatusBadRequest, Response{
+						Success: false,
+						Message: "Password terlalu lemah",
+						Results: nil,
+					})
+					return
+				}
+
+				argon := argon2.DefaultConfig()
+				encoded, err := argon.HashEncoded([]byte(input.Password))
+				if err != nil {
+					panic(err)
+				}
+
+				ListUser[index].Password = string(encoded)
+			}
+
+			ctx.JSON(http.StatusOK, Response{
+				Success: true,
+				Message: "User berhasil diupdate",
+				Results: ListUser[index],
 			})
 			return
 		}

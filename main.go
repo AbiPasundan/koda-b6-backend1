@@ -14,6 +14,7 @@ func main() {
 		authorized.GET("/", pkg.Home)
 		authorized.GET("/users/:id", pkg.UserSearch)
 		r.DELETE("/users/:id", pkg.Delete)
+		r.PUT("/users/:id", pkg.Edit)
 	}
 	r.GET("/register", pkg.Register)
 	r.POST("/register", pkg.RegisterPost)
