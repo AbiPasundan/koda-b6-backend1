@@ -132,23 +132,45 @@ func Login(ctx *gin.Context) {
 		Message: "Halaman Login Silahkan isi Di dengan POST",
 	})
 }
+
 func LoginPost(ctx *gin.Context) {
 	var data = models.Users{}
+
+	if err := ctx.ShouldBindJSON(&data); err != nil {
+		ctx.JSON(http.StatusBadRequest, models.Response{
+			Success: false,
+			Message: "Invalid request body",
+		})
+		return
+	}
+
 	for _, user := range ListUser {
-		ok, err := argon2.VerifyEncoded(
-			[]byte(data.Password),
-			[]byte(user.Password),
-		)
+		if data.Email == user.Email {
 
-		if err != nil {
-			panic(err)
-		}
+			ok, err := argon2.VerifyEncoded(
+				[]byte(data.Password),
+				[]byte(user.Password),
+			)
 
-		if data.Email == user.Email && ok {
-			ctx.SetCookie("label", "ok", 100, "/", "localhost", false, true)
+			if err != nil {
+				ctx.JSON(http.StatusInternalServerError, models.Response{
+					Success: false,
+					Message: "Internal server error",
+				})
+				return
+			}
 
-			ctx.String(200, "Login success!")
-			return
+			if ok {
+				ctx.SetCookie("label", "ok", 3600, "/", "", false, true)
+
+				ctx.JSON(http.StatusOK, models.Response{
+					Success: true,
+					Message: "Login success!",
+				})
+				return
+			}
+
+			break
 		}
 	}
 	ctx.ShouldBindJSON(&data)
