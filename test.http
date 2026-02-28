@@ -8,8 +8,9 @@ POST http://localhost:8888/register
 Content-Type: application/json
 
 {
-  "email": "admin@mail.com",
-  "password": "qwertyui"
+  "name": "no name",
+  "email": "admin@mailcom",
+  "password": "admin#123"
 }
 
 ###
@@ -19,7 +20,7 @@ Content-Type: application/json
 
 {
   "email": "admin@mail.com",
-  "password": "test"
+  "password": "admin#123"
 }
 
 ###

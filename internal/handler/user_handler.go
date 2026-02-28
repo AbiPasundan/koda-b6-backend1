@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"net/http"
+	"net/mail"
 	"satu/internal/models"
 	"strconv"
 	"strings"
@@ -75,17 +76,37 @@ func RegisterPost(ctx *gin.Context) {
 			Message: "Something Gone Wrong",
 		})
 	} else {
-		for x := range ListUser {
-			wordToCheck := "@"
+		// wordToCheck := "@"
 
-			if !strings.Contains(data.Email, wordToCheck) {
-				ctx.JSON(400, models.Response{
-					Success: false,
-					Message: "That is not an email",
-					Results: ListUser,
-				})
-				return
-			} else {
+		// if err, _ := mail.ParseAddress(data.Email){}
+
+		_, err := mail.ParseAddress(data.Email)
+
+		// if err != nil {
+		// 	ctx.JSON(400, models.Response{
+		// 		Success: false,
+		// 		Message: "That is not a valid email address",
+		// 		Results: ListUser,
+		// 	})
+		// 	return
+		// }
+		// if !strings.Contains(data.Email, wordToCheck) {
+		// 	ctx.JSON(400, models.Response{
+		// 		Success: false,
+		// 		Message: "That is not an email",
+		// 		Results: ListUser,
+		// 	})
+		// 	return
+		// }
+		if err != nil {
+			ctx.JSON(400, models.Response{
+				Success: false,
+				Message: "That is not an email",
+				Results: ListUser,
+			})
+			return
+		} else {
+			for x := range ListUser {
 				if data.Email == ListUser[x].Email {
 					ctx.JSON(400, models.Response{
 						Success: false,
@@ -108,6 +129,7 @@ func RegisterPost(ctx *gin.Context) {
 		argon := argon2.DefaultConfig()
 		encoded, err := argon.HashEncoded([]byte(data.Password))
 		if err != nil {
+			fmt.Println(encoded)
 			panic(err)
 		}
 
@@ -121,7 +143,7 @@ func RegisterPost(ctx *gin.Context) {
 		ctx.JSON(200, models.Response{
 			Success: true,
 			Message: "Berhasil register",
-			Results: ListUser,
+			// Results: ListUser,
 		})
 	}
 }
