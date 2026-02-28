@@ -1,38 +1,27 @@
-package pkg
+package handler
 
 import (
 	"fmt"
 	"net/http"
+	"satu/internal/models"
 	"strconv"
 	"strings"
+	"sync/atomic"
 
 	"github.com/gin-gonic/gin"
 	"github.com/matthewhartstonge/argon2"
 )
 
-type UpdateUser struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
+var data = models.Users{}
+var ListUser []models.Users
+var Counter int64
 
-var data = Users{}
-
-func CookieTool() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		if cookie, err := c.Cookie("label"); err == nil {
-			if cookie == "ok" {
-				c.Next()
-				return
-			}
-		}
-		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden with no cookie"})
-		c.Abort()
-	}
+func idCounter() int64 {
+	return atomic.AddInt64(&Counter, 1)
 }
 
 func Home(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, Response{
+	ctx.JSON(http.StatusOK, models.Response{
 		Success: true,
 		Message: "Data User",
 		Results: ListUser,
@@ -44,7 +33,7 @@ func UserSearch(ctx *gin.Context) {
 	i, err := strconv.Atoi(id)
 
 	if err != nil {
-		ctx.JSON(400, Response{
+		ctx.JSON(400, models.Response{
 			Success: false,
 			Message: "Bad Request",
 			Results: nil,
@@ -55,7 +44,7 @@ func UserSearch(ctx *gin.Context) {
 	for _, user := range ListUser {
 		fmt.Println(user.Id)
 		if int(user.Id) == i {
-			ctx.JSON(200, Response{
+			ctx.JSON(200, models.Response{
 				Success: true,
 				Message: "berhasil",
 				Results: user,
@@ -64,7 +53,7 @@ func UserSearch(ctx *gin.Context) {
 		}
 	}
 
-	ctx.JSON(404, Response{
+	ctx.JSON(404, models.Response{
 		Success: false,
 		Message: "User not found",
 		Results: nil,
@@ -72,7 +61,7 @@ func UserSearch(ctx *gin.Context) {
 }
 
 func Register(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, Response{
+	ctx.JSON(http.StatusOK, models.Response{
 		Success: true,
 		Message: "Halaman Register Silahkan isi Di dengan POST",
 	})
@@ -81,7 +70,7 @@ func Register(ctx *gin.Context) {
 func RegisterPost(ctx *gin.Context) {
 	var err = ctx.ShouldBindJSON(&data)
 	if err != nil {
-		ctx.JSON(http.StatusOK, Response{
+		ctx.JSON(http.StatusOK, models.Response{
 			Success: true,
 			Message: "Something Gone Wrong",
 		})
@@ -90,7 +79,7 @@ func RegisterPost(ctx *gin.Context) {
 			wordToCheck := "@"
 
 			if !strings.Contains(data.Email, wordToCheck) {
-				ctx.JSON(400, Response{
+				ctx.JSON(400, models.Response{
 					Success: false,
 					Message: "That is not an email",
 					Results: ListUser,
@@ -98,7 +87,7 @@ func RegisterPost(ctx *gin.Context) {
 				return
 			} else {
 				if data.Email == ListUser[x].Email {
-					ctx.JSON(400, Response{
+					ctx.JSON(400, models.Response{
 						Success: false,
 						Message: "Duplicated Email Not palid",
 						Results: ListUser,
@@ -106,7 +95,7 @@ func RegisterPost(ctx *gin.Context) {
 					return
 				}
 				if len(data.Password) <= 8 {
-					ctx.JSON(400, Response{
+					ctx.JSON(400, models.Response{
 						Success: true,
 						Message: "Password terlalu lemah",
 						Results: ListUser,
@@ -122,14 +111,14 @@ func RegisterPost(ctx *gin.Context) {
 			panic(err)
 		}
 
-		ListUser = append(ListUser, Users{
+		ListUser = append(ListUser, models.Users{
 			Id:       idCounter(),
 			Email:    data.Email,
 			Name:     data.Name,
 			Password: string(encoded),
 		})
 
-		ctx.JSON(200, Response{
+		ctx.JSON(200, models.Response{
 			Success: true,
 			Message: "Berhasil register",
 			Results: ListUser,
@@ -138,7 +127,7 @@ func RegisterPost(ctx *gin.Context) {
 }
 
 func Login(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, Response{
+	ctx.JSON(http.StatusOK, models.Response{
 		Success: true,
 		Message: "Halaman Login Silahkan isi Di dengan POST",
 	})
@@ -155,14 +144,14 @@ func LoginPost(ctx *gin.Context) {
 		}
 
 		if data.Email == user.Email && ok {
-			ctx.SetCookie("label", "ok", 30, "/", "localhost", false, true)
+			ctx.SetCookie("label", "ok", 100, "/", "localhost", false, true)
 
 			ctx.String(200, "Login success!")
 			return
 		}
 	}
 	ctx.ShouldBindJSON(&data)
-	ctx.JSON(400, Response{
+	ctx.JSON(400, models.Response{
 		Success: false,
 		Message: "Email or Password Wrong",
 		Results: nil,
@@ -174,7 +163,7 @@ func Delete(ctx *gin.Context) {
 
 	i, err := strconv.Atoi(id)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, Response{
+		ctx.JSON(http.StatusBadRequest, models.Response{
 			Success: false,
 			Message: "Invalid ID",
 			Results: nil,
@@ -187,7 +176,7 @@ func Delete(ctx *gin.Context) {
 
 			ListUser = append(ListUser[:index], ListUser[index+1:]...)
 
-			ctx.JSON(http.StatusOK, Response{
+			ctx.JSON(http.StatusOK, models.Response{
 				Success: true,
 				Message: "User berhasil dihapus",
 				Results: ListUser,
@@ -196,7 +185,7 @@ func Delete(ctx *gin.Context) {
 		}
 	}
 
-	ctx.JSON(http.StatusNotFound, Response{
+	ctx.JSON(http.StatusNotFound, models.Response{
 		Success: false,
 		Message: "User tidak ditemukan",
 		Results: nil,
@@ -208,7 +197,7 @@ func Edit(ctx *gin.Context) {
 
 	i, err := strconv.Atoi(id)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, Response{
+		ctx.JSON(http.StatusBadRequest, models.Response{
 			Success: false,
 			Message: "Invalid ID",
 			Results: nil,
@@ -216,9 +205,9 @@ func Edit(ctx *gin.Context) {
 		return
 	}
 
-	var input UpdateUser
+	var input models.UpdateUser
 	if err := ctx.ShouldBindJSON(&input); err != nil {
-		ctx.JSON(http.StatusBadRequest, Response{
+		ctx.JSON(http.StatusBadRequest, models.Response{
 			Success: false,
 			Message: "Invalid JSON",
 			Results: nil,
@@ -235,7 +224,7 @@ func Edit(ctx *gin.Context) {
 
 			if input.Email != "" {
 				if !strings.Contains(input.Email, "@") {
-					ctx.JSON(http.StatusBadRequest, Response{
+					ctx.JSON(http.StatusBadRequest, models.Response{
 						Success: false,
 						Message: "Email tidak valid",
 						Results: nil,
@@ -247,7 +236,7 @@ func Edit(ctx *gin.Context) {
 
 			if input.Password != "" {
 				if len(input.Password) <= 8 {
-					ctx.JSON(http.StatusBadRequest, Response{
+					ctx.JSON(http.StatusBadRequest, models.Response{
 						Success: false,
 						Message: "Password terlalu lemah",
 						Results: nil,
@@ -264,7 +253,7 @@ func Edit(ctx *gin.Context) {
 				ListUser[index].Password = string(encoded)
 			}
 
-			ctx.JSON(http.StatusOK, Response{
+			ctx.JSON(http.StatusOK, models.Response{
 				Success: true,
 				Message: "User berhasil diupdate",
 				Results: ListUser[index],
@@ -273,7 +262,7 @@ func Edit(ctx *gin.Context) {
 		}
 	}
 
-	ctx.JSON(http.StatusNotFound, Response{
+	ctx.JSON(http.StatusNotFound, models.Response{
 		Success: false,
 		Message: "User tidak ditemukan",
 		Results: nil,

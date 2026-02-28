@@ -1,7 +1,8 @@
 package main
 
 import (
-	"satu/pkg"
+	"satu/internal/handler"
+	"satu/internal/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -9,16 +10,16 @@ import (
 func main() {
 	r := gin.Default()
 	authorized := r.Group("/")
-	authorized.Use(pkg.CookieTool())
+	authorized.Use(middleware.CookieTool())
 	{
-		authorized.GET("/", pkg.Home)
-		authorized.GET("/users/:id", pkg.UserSearch)
-		r.DELETE("/users/:id", pkg.Delete)
-		r.PUT("/users/:id", pkg.Edit)
+		authorized.GET("/", handler.Home)
+		authorized.GET("/users/:id", handler.UserSearch)
+		r.DELETE("/users/:id", handler.Delete)
+		r.PUT("/users/:id", handler.Edit)
 	}
-	r.GET("/register", pkg.Register)
-	r.POST("/register", pkg.RegisterPost)
-	r.GET("/login", pkg.Login)
-	r.POST("/login", pkg.LoginPost)
+	r.GET("/register", handler.Register)
+	r.POST("/register", handler.RegisterPost)
+	r.GET("/login", handler.Login)
+	r.POST("/login", handler.LoginPost)
 	r.Run("localhost:8888")
 }
