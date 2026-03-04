@@ -8,6 +8,17 @@ definitions:
       success:
         type: boolean
     type: object
+  models.Users:
+    properties:
+      Password:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
 host: localhost:8883
 info:
   contact: {}
@@ -54,6 +65,31 @@ paths:
       summary: Login Get
       tags:
       - login
+    post:
+      consumes:
+      - application/json
+      description: Login Process
+      parameters:
+      - description: Login request body (email & password)
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.Users'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Login Post
+      tags:
+      - login
   /register:
     get:
       consumes:
@@ -73,6 +109,31 @@ paths:
       summary: Register Get
       tags:
       - regsiter
+    post:
+      consumes:
+      - application/json
+      description: Register Process
+      parameters:
+      - description: Login request body (email & password)
+        in: body
+        name: test
+        required: true
+        schema:
+          $ref: '#/definitions/models.Users'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Register Post
+      tags:
+      - register
   /users/{id}:
     get:
       consumes:

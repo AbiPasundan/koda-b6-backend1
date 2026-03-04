@@ -96,6 +96,16 @@ func Register(ctx *gin.Context) {
 	})
 }
 
+// RegisterPost godoc
+// @Summary Register Post
+// @Description Register Process
+// @Tags register
+// @Accept json
+// @Produce json
+// @Param        test body models.Users true "Login request body (email & password)"
+// @Success 200 {object} models.Response
+// @Failure 400 {object} models.Response
+// @Router /register [post]
 func RegisterPost(ctx *gin.Context) {
 	var data = models.Users{}
 	var err = ctx.ShouldBindJSON(&data)
@@ -171,6 +181,16 @@ func Login(ctx *gin.Context) {
 	})
 }
 
+// LoginPost godoc
+// @Summary Login Post
+// @Description Login Process
+// @Tags login
+// @Accept json
+// @Produce json
+// @Param        request body models.Users true "Login request body (email & password)"
+// @Success 200 {object} models.Response
+// @Failure 400 {object} models.Response
+// @Router /login [post]
 func LoginPost(ctx *gin.Context) {
 	ctx.Header("Access-Controll-Allow-Origin", "localhost:5173")
 	var data = models.Users{}
@@ -208,12 +228,11 @@ func LoginPost(ctx *gin.Context) {
 				})
 				return
 			}
-
 			break
 		}
 	}
-	ctx.ShouldBindJSON(&data)
-	ctx.JSON(400, models.Response{
+
+	ctx.JSON(http.StatusBadRequest, models.Response{
 		Success: false,
 		Message: "Email or Password Wrong",
 		Results: nil,
