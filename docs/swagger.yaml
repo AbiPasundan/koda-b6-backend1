@@ -8,7 +8,7 @@ definitions:
       success:
         type: boolean
     type: object
-host: localhost:8881
+host: localhost:8883
 info:
   contact: {}
   description: This is minitask backend1
@@ -35,6 +35,44 @@ paths:
       summary: Get All Users
       tags:
       - users
+  /login:
+    get:
+      consumes:
+      - application/json
+      description: Show Message in Login
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Login Get
+      tags:
+      - login
+  /register:
+    get:
+      consumes:
+      - application/json
+      description: Show Message in register
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Register Get
+      tags:
+      - regsiter
   /users/{id}:
     get:
       consumes:

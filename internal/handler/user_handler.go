@@ -80,6 +80,15 @@ func UserSearch(ctx *gin.Context) {
 	})
 }
 
+// Register godoc
+// @Summary      Register Get
+// @Description  Show Message in register
+// @Tags         regsiter
+// @Accept       json
+// @Produce      json
+// @Success      200 {object} models.Response
+// @Failure      500 {object} models.Response
+// @Router       /register [get]
 func Register(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, models.Response{
 		Success: true,
@@ -146,6 +155,15 @@ func RegisterPost(ctx *gin.Context) {
 	}
 }
 
+// Login godoc
+// @Summary      Login Get
+// @Description  Show Message in Login
+// @Tags         login
+// @Accept       json
+// @Produce      json
+// @Success      200 {object} models.Response
+// @Failure      500 {object} models.Response
+// @Router       /login [get]
 func Login(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, models.Response{
 		Success: true,

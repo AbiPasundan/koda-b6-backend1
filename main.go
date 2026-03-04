@@ -32,7 +32,7 @@ func authMiddleware() gin.HandlerFunc {
 //	@description	This is minitask backend1
 //	@termsOfService	http://swagger.io/terms/
 
-//	@host						localhost:8881
+//	@host						localhost:8883
 //	@BasePath					/api/v1
 //	@securityDefinitions.basic	BasicAuth
 
@@ -41,6 +41,11 @@ func main() {
 	r.Use(cors.Default())
 
 	swaggo := r.Group("/api/v1")
+
+	swaggo.GET("/register", handler.Register)
+	swaggo.GET("/login", handler.Login)
+	swaggo.POST("/register", handler.RegisterPost)
+	swaggo.POST("/login", handler.LoginPost)
 	swaggo.Use(middleware.CookieTool())
 	{
 		swaggo.GET("/", handler.Home)
@@ -62,6 +67,6 @@ func main() {
 	r.POST("/register", handler.RegisterPost)
 	r.POST("/login", handler.LoginPost)
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	r.Run(":8881")
+	r.Run(":8883")
 	// r.Run(fmt.Sprintf(":%s", os.Getenv("PORT")))
 }
