@@ -83,7 +83,7 @@ func UserSearch(ctx *gin.Context) {
 // Register godoc
 // @Summary      Register Get
 // @Description  Show Message in register
-// @Tags         regsiter
+// @Tags         Register
 // @Accept       json
 // @Produce      json
 // @Success      200 {object} models.Response
@@ -99,7 +99,7 @@ func Register(ctx *gin.Context) {
 // RegisterPost godoc
 // @Summary Register Post
 // @Description Register Process
-// @Tags register
+// @Tags Register
 // @Accept json
 // @Produce json
 // @Param        test body models.Users true "Login request body (email & password)"
@@ -239,6 +239,17 @@ func LoginPost(ctx *gin.Context) {
 	})
 }
 
+// Delete godoc
+// @Summary Delete func
+// @Description Delete user by id
+// @Tags delete
+// @Accept json
+// @Produce json
+// @Param        id path int true "Delete User"
+// @Success 200 {object} models.Response
+// @Failure 400 {object} models.Response
+// @Failure 404 {object} models.Response
+// @Router /users/{id} [delete]
 func Delete(ctx *gin.Context) {
 	id := ctx.Param("id")
 
@@ -275,6 +286,18 @@ func Delete(ctx *gin.Context) {
 	})
 }
 
+// Edit godoc
+// @Summary      Update user
+// @Description  Update user data by ID
+// @Tags         Users
+// @Accept       json
+// @Produce      json
+// @Param        id path int true "User ID"
+// @Param        request body models.UpdateUser true "Update user payload"
+// @Success      200 {object} models.Response
+// @Failure      400 {object} models.Response
+// @Failure      404 {object} models.Response
+// @Router       /users/{id} [put]
 func Edit(ctx *gin.Context) {
 	id := ctx.Param("id")
 
