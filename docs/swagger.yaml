@@ -1,0 +1,70 @@
+basePath: /api/v1
+definitions:
+  models.Response:
+    properties:
+      Message:
+        type: string
+      Results: {}
+      success:
+        type: boolean
+    type: object
+host: localhost:8881
+info:
+  contact: {}
+  description: This is minitask backend1
+  termsOfService: http://swagger.io/terms/
+  title: Base Path
+  version: 1.0.0
+paths:
+  /:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all users from the system
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Get All Users
+      tags:
+      - users
+  /users/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a single user by its ID parameter
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Get user by ID
+      tags:
+      - users
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"

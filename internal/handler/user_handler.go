@@ -20,6 +20,15 @@ func idCounter() int64 {
 	return atomic.AddInt64(&Counter, 1)
 }
 
+// Home godoc
+// @Summary      Get All Users
+// @Description  Retrieve all users from the system
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Success      200 {object} models.Response
+// @Failure      500 {object} models.Response
+// @Router       / [get]
 func Home(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, models.Response{
 		Success: true,
@@ -28,6 +37,17 @@ func Home(ctx *gin.Context) {
 	})
 }
 
+// UserSearch godoc
+// @Summary      Get user by ID
+// @Description  Retrieve a single user by its ID parameter
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "User ID"
+// @Success      200  {object}  models.Response
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Router       /users/{id} [get]
 func UserSearch(ctx *gin.Context) {
 	id := ctx.Param("id")
 	i, err := strconv.Atoi(id)
@@ -76,28 +96,7 @@ func RegisterPost(ctx *gin.Context) {
 			Message: "Something Gone Wrong",
 		})
 	} else {
-		// wordToCheck := "@"
-
-		// if err, _ := mail.ParseAddress(data.Email){}
-
 		_, err := mail.ParseAddress(data.Email)
-
-		// if err != nil {
-		// 	ctx.JSON(400, models.Response{
-		// 		Success: false,
-		// 		Message: "That is not a valid email address",
-		// 		Results: ListUser,
-		// 	})
-		// 	return
-		// }
-		// if !strings.Contains(data.Email, wordToCheck) {
-		// 	ctx.JSON(400, models.Response{
-		// 		Success: false,
-		// 		Message: "That is not an email",
-		// 		Results: ListUser,
-		// 	})
-		// 	return
-		// }
 		if err != nil {
 			ctx.JSON(400, models.Response{
 				Success: false,
@@ -143,7 +142,6 @@ func RegisterPost(ctx *gin.Context) {
 		ctx.JSON(200, models.Response{
 			Success: true,
 			Message: "Berhasil register",
-			// Results: ListUser,
 		})
 	}
 }
@@ -154,11 +152,6 @@ func Login(ctx *gin.Context) {
 		Message: "Halaman Login Silahkan isi Di dengan POST",
 	})
 }
-
-// r.OPTION("/login", func (ctx *gin.Context)  {
-// ctx.Header("Access-Controll-Allow-Origin", "localhost:5173")
-// 	ctx.Data(http.StatusOk, "", []byte(""))
-// })
 
 func LoginPost(ctx *gin.Context) {
 	ctx.Header("Access-Controll-Allow-Origin", "localhost:5173")

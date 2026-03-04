@@ -1,15 +1,16 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
-	"os"
+	_ "satu/docs"
 	"satu/internal/handler"
 	"satu/internal/middleware"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func authMiddleware() gin.HandlerFunc {
@@ -25,49 +26,28 @@ func authMiddleware() gin.HandlerFunc {
 	}
 }
 
+// @BasePath godoc
+//	@title			Base Path
+//	@version		1.0.0
+//	@description	This is minitask backend1
+//	@termsOfService	http://swagger.io/terms/
+
+//	@host						localhost:8881
+//	@BasePath					/api/v1
+//	@securityDefinitions.basic	BasicAuth
+
 func main() {
 	r := gin.Default()
-
-	// r.Use(authMiddleware())
-
-	// r.OPTIONS("/login", func(ctx *gin.Context) {
-	// 	ctx.Header("Access-Controll-Allow-Origin", "localhost:5173")
-	// 	ctx.Data(http.StatusOK, "", []byte(""))
-	// })
-
 	r.Use(cors.Default())
 
-	// ConnConfig, _ := pgx.ParseConfig("")
-
-	// conn, err := pgx.Connect(context.Background(), ConnConfig.ConnString())
-
-	// if err != nil {
-	// 	fmt.Println("connection is failed")
-	// 	fmt.Println(err)
-	// }
-
-	// r.GET("", func(ctx *gin.Context) {
-	// 	rows, err := conn.Query(context.Background(),
-	// 		`SELECT * FROM users`,
-	// 	)
-
-	// 	users, err := pgx.CollectRows(rows, pgx.RowToAddrOfStructByName[Users]())
-
-	// 	if err != nil {
-	// 		ctx.JSON(400, models.Response{
-	// 			Success: false,
-	// 			Message: "Bad Request",
-	// 			Results: nil,
-	// 		})
-	// 		return
-	// 	}
-
-	// 	ctx.JSON(http.StatusOK, models.Response{
-	// 		Success: true,
-	// 		Message: "Data User",
-	// 		Results: users,
-	// 	})
-	// })
+	swaggo := r.Group("/api/v1")
+	swaggo.Use(middleware.CookieTool())
+	{
+		swaggo.GET("/", handler.Home)
+		swaggo.GET("/users/:id", handler.UserSearch)
+		swaggo.DELETE("/users/:id", handler.Delete)
+		swaggo.PUT("/users/:id", handler.Edit)
+	}
 
 	authorized := r.Group("/")
 	authorized.Use(middleware.CookieTool())
@@ -81,7 +61,7 @@ func main() {
 	r.GET("/login", handler.Login)
 	r.POST("/register", handler.RegisterPost)
 	r.POST("/login", handler.LoginPost)
-
-	// r.Run(":8888")
-	r.Run(fmt.Sprintf(":%s", os.Getenv("PORT")))
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	r.Run(":8881")
+	// r.Run(fmt.Sprintf(":%s", os.Getenv("PORT")))
 }
