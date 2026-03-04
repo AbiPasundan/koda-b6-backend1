@@ -155,7 +155,13 @@ func Login(ctx *gin.Context) {
 	})
 }
 
+// r.OPTION("/login", func (ctx *gin.Context)  {
+// ctx.Header("Access-Controll-Allow-Origin", "localhost:5173")
+// 	ctx.Data(http.StatusOk, "", []byte(""))
+// })
+
 func LoginPost(ctx *gin.Context) {
+	ctx.Header("Access-Controll-Allow-Origin", "localhost:5173")
 	var data = models.Users{}
 
 	if err := ctx.ShouldBindJSON(&data); err != nil {
